@@ -12,7 +12,7 @@ impl SieveOfEratosthenes {
     }
 
     pub fn run(&mut self) {
-        let limit = (self.sieve.len() as f32).sqrt() as usize;
+        let limit = (self.sieve.len() as f32).sqrt() as usize+1;
 
         self.sieve[0] = false;
         self.sieve[1] = false;
@@ -41,5 +41,14 @@ impl SieveOfEratosthenes {
         }
 
         return primes;
+    }
+
+    pub fn get_limit(self) -> usize{
+        return self.sieve.len() - 1;
+    }
+
+    pub fn set_limit(&mut self,new_limit: usize){
+        self.sieve = vec![true; new_limit+1];
+        self.is_sieve_completed = false;
     }
 }

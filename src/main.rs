@@ -2,6 +2,7 @@ use std::{fs::File, io::Write};
 
 use clap::Parser;
 mod sieves;
+mod tests; // without that line tests don't work
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
