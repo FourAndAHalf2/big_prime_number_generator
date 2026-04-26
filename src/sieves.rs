@@ -11,14 +11,24 @@ impl SieveOfEratosthenes {
         };
     }
 
+    pub fn get_limit(&self) -> usize {
+        return self.sieve.len() - 1;
+    }
+
+    #[allow(unused)]
+    pub fn set_limit(&mut self, new_limit: usize) {
+        self.sieve = vec![true; new_limit + 1];
+        self.is_sieve_completed = false;
+    }
+
     pub fn run(&mut self) {
-        let limit = (self.sieve.len() as f32).sqrt() as usize+1;
+        let limit = (self.get_limit() as f32 + 1.0).sqrt() as usize;
 
         self.sieve[0] = false;
         self.sieve[1] = false;
-        for i in 1..limit {
+        for i in 1..=limit {
             if self.sieve[i] {
-                for j in (2 * i..self.sieve.len()).step_by(i) {
+                for j in (2 * i..=self.get_limit()).step_by(i) {
                     self.sieve[j] = false;
                 }
             }
@@ -26,29 +36,19 @@ impl SieveOfEratosthenes {
         self.is_sieve_completed = true;
     }
 
-    pub fn get_primes(&mut self) -> Vec<usize>{
-        
-        if !self.is_sieve_completed{
+    pub fn get_primes(&mut self) -> Vec<usize> {
+        if !self.is_sieve_completed {
             self.run();
         }
 
         let mut primes = vec![];
 
-        for i in 0..self.sieve.len(){
-            if self.sieve[i]{
+        for i in 0..=self.get_limit() {
+            if self.sieve[i] {
                 primes.push(i);
             }
         }
 
         return primes;
-    }
-
-    pub fn get_limit(self) -> usize{
-        return self.sieve.len() - 1;
-    }
-
-    pub fn set_limit(&mut self,new_limit: usize){
-        self.sieve = vec![true; new_limit+1];
-        self.is_sieve_completed = false;
     }
 }
