@@ -1,4 +1,4 @@
-use std::{env::consts::ARCH, fs::File, io::Write};
+use std::{fs::File, io::Write};
 
 use clap::Parser;
 mod sieves;
