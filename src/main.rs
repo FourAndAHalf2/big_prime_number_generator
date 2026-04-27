@@ -24,10 +24,17 @@ struct Args {
     /// Display primes
     #[clap(short, long)]
     display: bool,
+
+    // hide progress bar
+    #[clap(long)]
+    hide: bool
 }
 
 fn main()  -> Result<(), Box<dyn std::error::Error>>{
     let args = Args::parse();
+
+    get_settings().show_bar = !args.hide;
+
     let mut sieve = sieves::SieveOfEratosthenes::new(args.limit);
 
     let bar = ProgressBar::new(get_settings().show_bar);
