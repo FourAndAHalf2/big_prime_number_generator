@@ -1,5 +1,4 @@
 use tqdm::tqdm;
-use crate::settings;
 
 pub struct ProgressBar {
     show: bool,
