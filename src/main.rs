@@ -1,8 +1,14 @@
 use std::{fs::File, io::Write};
 
+
 use clap::Parser;
+
+use crate::{progress_bar::ProgressBar, settings::get_settings};
 mod sieves;
 mod tests; // without that line tests don't work
+mod settings;
+mod progress_bar;
+
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
@@ -24,6 +30,8 @@ fn main()  -> Result<(), Box<dyn std::error::Error>>{
     let args = Args::parse();
     let mut sieve = sieves::SieveOfEratosthenes::new(args.limit);
 
+    let bar = ProgressBar::new(get_settings().show_bar);
+
     let primes = sieve.get_primes();
     if args.display {
         for prime in primes {
@@ -33,7 +41,7 @@ fn main()  -> Result<(), Box<dyn std::error::Error>>{
     else {
         let mut file = File::create( args.output)?;
 
-        for prime in primes{
+        for prime in  bar.iter(primes){
             let _ = writeln!(file,"{}",prime);
         }
     }

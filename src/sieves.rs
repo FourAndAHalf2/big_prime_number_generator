@@ -1,3 +1,5 @@
+use crate::{progress_bar::ProgressBar, settings::get_settings};
+
 pub struct SieveOfEratosthenes {
     sieve: Vec<bool>,
     is_sieve_completed: bool,
@@ -22,11 +24,13 @@ impl SieveOfEratosthenes {
     }
 
     pub fn run(&mut self) {
+        let bar = ProgressBar::new(get_settings().show_bar);
+
         let limit = (self.get_limit() as f32 + 1.0).sqrt() as usize;
 
         self.sieve[0] = false;
         self.sieve[1] = false;
-        for i in 1..=limit {
+        for i in bar.iter(1..=limit) {
             if self.sieve[i] {
                 for j in (2 * i..=self.get_limit()).step_by(i) {
                     self.sieve[j] = false;
@@ -37,13 +41,15 @@ impl SieveOfEratosthenes {
     }
 
     pub fn get_primes(&mut self) -> Vec<usize> {
+        let bar = ProgressBar::new(get_settings().show_bar);
+
         if !self.is_sieve_completed {
             self.run();
         }
 
         let mut primes = vec![];
 
-        for i in 0..=self.get_limit() {
+        for i in bar.iter( 0..=self.get_limit()) {
             if self.sieve[i] {
                 primes.push(i);
             }

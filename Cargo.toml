@@ -1,7 +1,8 @@
 [package]
 name = "big_prime_number_generator"
-version = "0.3.1"
+version = "0.4.0"
 edition = "2021"
 
 [dependencies]
 clap = { version = "4.6.1", features = ["derive"] }
+tqdm = "0.8.0"
