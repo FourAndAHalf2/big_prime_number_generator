@@ -1,12 +1,13 @@
 use std::sync::{LazyLock, Mutex};
 
 pub struct Settings{
-    pub show_bar: bool
+    pub show_bar: bool,
+    pub buffor_size: usize//number of bytes
 }
 
 impl Settings {
     pub fn new() -> Settings{
-        return Settings { show_bar: true };
+        return Settings { show_bar: true, buffor_size: 1_000};
     }
 }
 

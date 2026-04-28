@@ -48,8 +48,21 @@ fn main()  -> Result<(), Box<dyn std::error::Error>>{
     else {
         let mut file = File::create( args.output)?;
 
+        let mut buffer = String::new();
+        
         for prime in  bar.iter(primes){
-            let _ = writeln!(file,"{}",prime);
+
+            buffer +=  &format!("{}\n",prime);
+
+            if buffer.len() > get_settings().buffor_size{
+                let _ = write!(file,"{}",buffer);
+
+                buffer.clear();
+            }
+           
+        }
+        if buffer.len() != 0 {
+            let _ = write!(file,"{}",buffer);
         }
     }
 
