@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod tests{
-    use crate::{progress_bar::{self, ProgressBar}, settings::get_settings, sieves::SieveOfEratosthenes};
+    use crate::{settings::get_settings, sieves::SieveOfEratosthenes};
         
     #[test]
     fn test_get_primes(){
