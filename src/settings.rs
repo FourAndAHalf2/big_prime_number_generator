@@ -7,7 +7,7 @@ pub struct Settings{
 
 impl Settings {
     pub fn new() -> Settings{
-        return Settings { show_bar: true, buffor_size: 1_000};
+        return Settings { show_bar: false, buffor_size: 1_000};
     }
 }
 

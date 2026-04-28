@@ -1,9 +1,10 @@
 #[cfg(test)]
 mod tests{
-    use crate::sieves::SieveOfEratosthenes;
-
+    use crate::{progress_bar::{self, ProgressBar}, settings::get_settings, sieves::SieveOfEratosthenes};
+        
     #[test]
     fn test_get_primes(){
+        get_settings().show_bar = false;
         let mut sieve = SieveOfEratosthenes::new(10);
 
        assert_eq!(sieve.get_primes(),vec![2,3,5,7]);
@@ -11,6 +12,7 @@ mod tests{
 
     #[test]
     fn test_get_limit(){
+        get_settings().show_bar = false;
         let sieve = SieveOfEratosthenes::new(100);
 
         assert_eq!(sieve.get_limit(),100);
@@ -26,6 +28,7 @@ mod tests{
 
     #[test]
     fn test_get_primes_after_changing_limit(){
+        get_settings().show_bar = false;
         let mut sieve = SieveOfEratosthenes::new(100);
 
         sieve.set_limit(20);
