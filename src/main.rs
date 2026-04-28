@@ -1,71 +1,97 @@
-use std::{fs::File, io::Write};
+use std::{fs::{File, read_to_string}, io::Write};
 
-
-use clap::Parser;
+use clap::{Parser, Subcommand};
 
 use crate::{progress_bar::ProgressBar, settings::get_settings};
-mod sieves;
-mod tests; // without that line tests don't work
-mod settings;
 mod progress_bar;
+mod settings;
+mod sieves;
+mod tests;
 
+#[derive(Subcommand, Debug)]
+enum Commands {
+    Read {
+        /// file what is opened to read
+        #[arg(short,long)]
+        file: String,
+    },
+    Write {
+        /// Limit of sieve
+        #[arg(short, long)]
+        limit: usize,
+
+        /// Place the output into file
+        #[arg(short, long, default_value_t = String::from("out.txt"))]
+        output: String,
+
+        /// Display primes
+        #[arg(short, long)]
+        display: bool,
+
+        /// Hide progress bar
+        #[arg(long)]
+        hide: bool,
+    },
+}
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
 struct Args {
-    /// Limit of sieve
-    #[arg(short, long)]
-    limit: usize,
-
-    /// Place the output into file
-    #[arg(short,long, default_value_t = String::from("out.txt"))]
-    output: String,
-
-    /// Display primes
-    #[clap(short, long)]
-    display: bool,
-
-    // hide progress bar
-    #[clap(long)]
-    hide: bool
+    #[command(subcommand)]
+    command: Option<Commands>,
 }
 
-fn main()  -> Result<(), Box<dyn std::error::Error>>{
+fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = Args::parse();
 
-    get_settings().show_bar = !args.hide;
+    match args.command {
+        Some(Commands::Write {
+            limit,
+            output,
+            display,
+            hide,
+        }) => {
+            get_settings().show_bar = !hide;
 
-    let mut sieve = sieves::SieveOfEratosthenes::new(args.limit);
+            let mut sieve = sieves::SieveOfEratosthenes::new(limit);
+            let bar = ProgressBar::new(get_settings().show_bar);
 
-    let bar = ProgressBar::new(get_settings().show_bar);
+            let primes = sieve.get_primes();
 
-    let primes = sieve.get_primes();
-    if args.display {
-        for prime in primes {
-            println!("{}", prime);
-        }
-    }
-    else {
-        let mut file = File::create( args.output)?;
+            if display {
+                for prime in primes {
+                    println!("{}", prime);
+                }
+            } else {
+                let mut file = File::create(output)?;
+                let mut buffer = String::new();
 
-        let mut buffer = String::new();
-        
-        for prime in  bar.iter(primes){
+                for prime in bar.iter(primes) {
+                    buffer += &format!("{}\n", prime);
 
-            buffer +=  &format!("{}\n",prime);
+                    if buffer.len() > get_settings().buffor_size {
+                        write!(file, "{}", buffer)?;
+                        buffer.clear();
+                    }
+                }
 
-            if buffer.len() > get_settings().buffor_size{
-                let _ = write!(file,"{}",buffer);
-
-                buffer.clear();
+                if !buffer.is_empty() {
+                    write!(file, "{}", buffer)?;
+                }
             }
-           
         }
-        if buffer.len() != 0 {
-            let _ = write!(file,"{}",buffer);
+
+        Some(Commands::Read { file: path }) => {
+            for line in read_to_string(path)?.lines(){
+                println!("{}",line);
+            }
+        }
+
+
+        None => {
+            println!("No command provided. Use --help.");
         }
     }
-
 
     Ok(())
 }
