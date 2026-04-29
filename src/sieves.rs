@@ -32,7 +32,7 @@ impl SieveOfEratosthenes {
         self.sieve[1] = false;
         for i in bar.iter(1..=limit) {
             if self.sieve[i] {
-                for j in (2 * i..=self.get_limit()).step_by(i) {
+                for j in (i * i..=self.get_limit()).step_by(i) {
                     self.sieve[j] = false;
                 }
             }
