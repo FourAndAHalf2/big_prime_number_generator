@@ -1,13 +1,18 @@
-use std::sync::{LazyLock, Mutex};
+use std::{
+    env, fs::File, sync::{LazyLock, Mutex}
+};
 
-pub struct Settings{
+pub struct Settings {
     pub show_bar: bool,
-    pub buffor_size: usize//number of bytes
+    pub buffer_size: usize, //number of bytes
 }
 
 impl Settings {
-    pub fn new() -> Settings{
-        return Settings { show_bar: false, buffor_size: 1_000};
+    pub fn new() -> Settings {
+        return Settings {
+            show_bar: false,
+            buffer_size: 1_000,
+        };
     }
 }
 
@@ -17,3 +22,19 @@ pub fn get_settings() -> std::sync::MutexGuard<'static, Settings> {
     return SETTINGS.lock().unwrap();
 }
 
+pub fn load_settings() -> Result<(), Box<dyn std::error::Error>> {
+    let mut config_path = env::current_exe()?;
+
+    config_path.pop();
+    config_path.pop();
+    config_path.pop();
+    config_path.push("config.json");
+
+    let config_file = File::open(config_path)?;
+
+    let json: serde_json::Value = serde_json::from_reader(config_file)?;
+
+    get_settings().buffer_size = json["buffer_size"].as_number().unwrap().as_u64().unwrap() as usize; // there can be errors in 32 bits systems
+    get_settings().show_bar = json["show_bar"].as_bool().unwrap();
+    Ok(())
+}
