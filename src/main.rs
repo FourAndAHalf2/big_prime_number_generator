@@ -1,19 +1,25 @@
-use std::{fs::{File, read_to_string}, io::Write};
+use std::{
+    fs::{File,},
+    io::{BufReader,BufRead, Write},
+};
 
 use clap::{Parser, Subcommand};
 
-use crate::{progress_bar::ProgressBar, settings::{get_settings, load_settings}};
+use crate::{
+    progress_bar::ProgressBar,
+    settings::{get_settings, load_settings},
+};
+mod binnary_array;
 mod progress_bar;
 mod settings;
 mod sieves;
 mod tests;
-mod binnary_array;
 
 #[derive(Subcommand, Debug)]
 enum Commands {
     Read {
         /// file what is opened to read
-        #[arg(short,long)]
+        #[arg(short, long)]
         file: String,
     },
     Write {
@@ -45,7 +51,6 @@ struct Args {
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = Args::parse();
 
-
     let _ = load_settings();
 
     match args.command {
@@ -55,7 +60,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             display,
             hide,
         }) => {
-
             get_settings().show_bar = !hide;
 
             let mut sieve = sieves::SieveOfEratosthenes::new(limit);
@@ -87,11 +91,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
 
         Some(Commands::Read { file: path }) => {
-            for line in read_to_string(path)?.lines(){
-                println!("{}",line);
+            let file = File::open(path)?;
+            let reader = BufReader::new(file);
+
+            for line in reader.lines() {
+                println!("{}", line?);
             }
         }
-
 
         None => {
             println!("No command provided. Use --help.");
