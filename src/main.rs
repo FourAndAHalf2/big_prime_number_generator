@@ -2,7 +2,7 @@ use std::{fs::{File, read_to_string}, io::Write};
 
 use clap::{Parser, Subcommand};
 
-use crate::{progress_bar::ProgressBar, settings::get_settings};
+use crate::{progress_bar::ProgressBar, settings::{get_settings, load_settings}};
 mod progress_bar;
 mod settings;
 mod sieves;
@@ -44,6 +44,8 @@ struct Args {
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = Args::parse();
 
+
+   
     match args.command {
         Some(Commands::Write {
             limit,
@@ -51,6 +53,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             display,
             hide,
         }) => {
+
+            let _ = load_settings();
             get_settings().show_bar = !hide;
 
             let mut sieve = sieves::SieveOfEratosthenes::new(limit);
@@ -69,7 +73,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 for prime in bar.iter(primes) {
                     buffer += &format!("{}\n", prime);
 
-                    if buffer.len() > get_settings().buffor_size {
+                    if buffer.len() > get_settings().buffer_size {
                         write!(file, "{}", buffer)?;
                         buffer.clear();
                     }
