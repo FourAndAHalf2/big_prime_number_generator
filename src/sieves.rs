@@ -1,14 +1,14 @@
-use crate::{progress_bar::ProgressBar, settings::get_settings};
+use crate::{binnary_array::BinaryArray, progress_bar::ProgressBar, settings::get_settings};
 
 pub struct SieveOfEratosthenes {
-    sieve: Vec<bool>,
+    sieve: BinaryArray,
     is_sieve_completed: bool,
 }
 
 impl SieveOfEratosthenes {
     pub fn new(limit: usize) -> SieveOfEratosthenes {
         return SieveOfEratosthenes {
-            sieve: vec![true; limit + 1 as usize],
+            sieve: BinaryArray::new(limit+1, true),
             is_sieve_completed: false,
         };
     }
@@ -19,7 +19,7 @@ impl SieveOfEratosthenes {
 
     #[allow(unused)]
     pub fn set_limit(&mut self, new_limit: usize) {
-        self.sieve = vec![true; new_limit + 1];
+        self.sieve =  BinaryArray::new(new_limit+1, true);
         self.is_sieve_completed = false;
     }
 

@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod tests{
-    use crate::{settings::get_settings, sieves::SieveOfEratosthenes};
+    use crate::{binnary_array, settings::get_settings, sieves::SieveOfEratosthenes};
         
     #[test]
     fn test_get_primes(){
@@ -33,5 +33,18 @@ mod tests{
 
         sieve.set_limit(20);
         assert_eq!(sieve.get_primes(),vec![2,3,5,7,11,13,17,19]);
+    }
+
+    #[test]
+    fn test_binary_array_read(){
+        let data = binnary_array::BinaryArray::new(8, false);
+        assert_eq!(data[7],false);
+    }
+
+    #[test]
+    fn test_binary_array_write(){
+        let mut data = binnary_array::BinaryArray::new(10, false);
+        data[7] = true;
+        assert_eq!(data[7],true);
     }
 }

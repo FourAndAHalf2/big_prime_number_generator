@@ -7,6 +7,7 @@ mod progress_bar;
 mod settings;
 mod sieves;
 mod tests;
+mod binnary_array;
 
 #[derive(Subcommand, Debug)]
 enum Commands {
@@ -46,7 +47,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 
     let _ = load_settings();
-    
+
     match args.command {
         Some(Commands::Write {
             limit,
