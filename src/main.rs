@@ -1,3 +1,4 @@
+#![feature(test)]
 use std::{
     fs::{File,},
     io::{BufReader,BufRead, Write},

@@ -103,7 +103,6 @@ impl IntoIterator for BinaryArray {
     type IntoIter = BinaryArrayIterator;
 
     fn into_iter(self) -> Self::IntoIter {
-        // tworzy iterator dla BinaryArray
         BinaryArrayIterator {
             binary_array: self,
             index: 0,
