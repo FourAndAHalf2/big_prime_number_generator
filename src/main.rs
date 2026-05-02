@@ -1,7 +1,7 @@
 #![feature(test)]
 use std::{
-    fs::{File,},
-    io::{BufReader,BufRead, Write},
+    fs::File,
+    io::{BufRead, BufReader, Write},
 };
 
 use clap::{Parser, Subcommand};
@@ -15,6 +15,7 @@ mod progress_bar;
 mod settings;
 mod sieves;
 mod tests;
+use crate::sieves::Sieve;
 
 #[derive(Subcommand, Debug)]
 enum Commands {
@@ -39,6 +40,10 @@ enum Commands {
         /// Hide progress bar
         #[arg(long)]
         hide: bool,
+
+        /// type of sieve used to compute primes, aviable types eratosthenes, atkin
+        #[arg(short,long, default_value_t = String::from("eratosthenes"))]
+        sieve: String
     },
 }
 
@@ -60,10 +65,17 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             output,
             display,
             hide,
+            sieve
         }) => {
             get_settings().show_bar = !hide;
 
-            let mut sieve = sieves::SieveOfEratosthenes::new(limit);
+            let sieve_type = sieve;
+            let mut sieve: Box<dyn Sieve> = Box::new(sieves::SieveOfEratosthenes::new(limit));
+
+            if sieve_type == "atkin" {
+                sieve = Box::new(sieves::SieveOfAtkin::new(limit));
+            }
+
             let bar = ProgressBar::new(get_settings().show_bar);
 
             let primes = sieve.get_primes();

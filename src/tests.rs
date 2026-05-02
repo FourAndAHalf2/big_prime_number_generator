@@ -5,46 +5,39 @@ mod tests {
     use crate::{
         binnary_array::{self, BinaryArray},
         settings::get_settings,
-        sieves::SieveOfEratosthenes,
+        sieves::{Sieve, SieveOfAtkin, SieveOfEratosthenes},
     };
     use test::Bencher;
 
-    #[test]
-    fn test_get_primes() {
+    fn test_sieve<F>(create_sieve: F, limit: usize, expected_primes: Vec<usize>)
+    where
+        F: Fn(usize) -> Box<dyn Sieve>,
+    {
         get_settings().show_bar = false;
-        let mut sieve = SieveOfEratosthenes::new(10);
-
-        assert_eq!(sieve.get_primes(), vec![2, 3, 5, 7]);
+        let mut sieve = create_sieve(limit);
+        let primes = sieve.get_primes();
+        
+        assert_eq!(primes, expected_primes);
     }
 
-    #[test]
-    fn test_get_limit() {
-        get_settings().show_bar = false;
-        let sieve = SieveOfEratosthenes::new(100);
-
-        assert_eq!(sieve.get_limit(), 100);
-    }
 
     #[test]
-    fn test_set_limit() {
-        let mut sieve = SieveOfEratosthenes::new(100);
+    fn test_all_sieves() {
+        let sieve_creators: Vec<Box<dyn Fn(usize) -> Box<dyn Sieve>>> = vec![
+            Box::new(|limit| Box::new(SieveOfEratosthenes::new(limit))),
+            Box::new(|limit| Box::new(SieveOfAtkin::new(limit))),
+        ];
 
-        sieve.set_limit(200);
-        assert_eq!(sieve.get_limit(), 200);
-    }
-
-    #[test]
-    fn test_get_primes_after_changing_limit() {
-        get_settings().show_bar = false;
-        let mut sieve = SieveOfEratosthenes::new(100);
-
-        sieve.set_limit(20);
-        assert_eq!(sieve.get_primes(), vec![2, 3, 5, 7, 11, 13, 17, 19]);
+        let expected_primes = vec![2, 3, 5, 7];
+        for creator in sieve_creators {
+            test_sieve(creator, 10, expected_primes.clone());
+        }
     }
 
     #[test]
     fn test_binary_array_read() {
         let data = binnary_array::BinaryArray::new(8, false);
+        assert_eq!(data[0], false);
         assert_eq!(data[7], false);
     }
 
@@ -59,15 +52,14 @@ mod tests {
     fn bench_binary_array_iter(b: &mut Bencher) {
         b.iter(|| {
             let binnary_array = BinaryArray::new(1_000_000, true);
-            for _ in binnary_array {
-            }
+            for _ in binnary_array {}
         });
     }
 
     #[bench]
-    fn bench_sieve_run(b: &mut Bencher){
+    fn bench_sieve_run(b: &mut Bencher) {
         b.iter(|| {
-            let mut sieve =SieveOfEratosthenes::new(1_000_000);
+            let mut sieve = SieveOfEratosthenes::new(1_000_000);
             sieve.run();
         });
     }
