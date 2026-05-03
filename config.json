@@ -1,4 +1,6 @@
 {
+    "output": "out.txt",
     "buffer_size": 1000,
-    "show_bar": false
+    "show_bar": true,
+    "sieve_type": "eratosthenes"
 }

@@ -3,15 +3,19 @@ use std::{
 };
 
 pub struct Settings {
+    pub output: String,
     pub show_bar: bool,
     pub buffer_size: usize, //number of bytes
+    pub sieve_type: String
 }
 
 impl Settings {
     pub fn new() -> Settings {
         return Settings {
+            output: "out.txt".to_string(),
             show_bar: false,
             buffer_size: 1_000,
+            sieve_type: "eratosthenes".to_string(),
         };
     }
 }
@@ -36,5 +40,13 @@ pub fn load_settings() -> Result<(), Box<dyn std::error::Error>> {
 
     get_settings().buffer_size = json["buffer_size"].as_number().unwrap().as_u64().unwrap() as usize; // there can be errors in 32 bits systems
     get_settings().show_bar = json["show_bar"].as_bool().unwrap();
+    get_settings().output = json["output"].as_str().unwrap().to_string();
+    get_settings().sieve_type = json["sieve_type"].as_str().unwrap().to_string();
     Ok(())
+}
+
+
+pub fn load_and_get_settings() -> std::sync::MutexGuard<'static, Settings>{
+    let _ = load_settings();
+    get_settings()
 }

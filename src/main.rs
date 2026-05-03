@@ -8,7 +8,7 @@ use clap::{Parser, Subcommand};
 
 use crate::{
     progress_bar::ProgressBar,
-    settings::{get_settings, load_settings},
+    settings::{get_settings, load_and_get_settings, load_settings},
 };
 mod binnary_array;
 mod progress_bar;
@@ -30,7 +30,7 @@ enum Commands {
         limit: usize,
 
         /// Place the output into file
-        #[arg(short, long, default_value_t = String::from("out.txt"))]
+        #[arg(short, long, default_value_t = load_and_get_settings().output.clone())]
         output: String,
 
         /// Display primes
@@ -41,9 +41,17 @@ enum Commands {
         #[arg(long)]
         hide: bool,
 
-        /// type of sieve used to compute primes, aviable types eratosthenes, atkin
-        #[arg(short,long, default_value_t = String::from("eratosthenes"))]
-        sieve: String
+        /// Show progress bar
+        #[arg(long)]
+        show: bool,
+
+        /// Type of sieve used to compute primes, aviable types eratosthenes, atkin
+        #[arg(short,long, default_value_t = load_and_get_settings().sieve_type.clone())]
+        sieve: String,
+
+        /// Size of buffer used for writing numbers
+        #[arg(short,long, default_value_t = load_and_get_settings().buffer_size.clone())]
+        buffer_size: usize
     },
 }
 
@@ -53,6 +61,7 @@ struct Args {
     #[command(subcommand)]
     command: Option<Commands>,
 }
+
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = Args::parse();
@@ -65,16 +74,24 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             output,
             display,
             hide,
-            sieve
+            show,
+            sieve,
+            buffer_size,
         }) => {
-            get_settings().show_bar = !hide;
+            if hide{
+                get_settings().show_bar = false;
+            }
+            if show{
+                get_settings().show_bar = true;
+            }
 
             let sieve_type = sieve;
-            let mut sieve: Box<dyn Sieve> = Box::new(sieves::SieveOfEratosthenes::new(limit));
-
-            if sieve_type == "atkin" {
-                sieve = Box::new(sieves::SieveOfAtkin::new(limit));
-            }
+            
+            let mut sieve: Box<dyn Sieve> =  match sieve_type.to_lowercase().as_str() {
+                "eratosthenes" => Box::new(sieves::SieveOfEratosthenes::new(limit)),
+                "atkin" => Box::new(sieves::SieveOfAtkin::new(limit)),
+                _ => panic!("{} is not supported, use other algorithm",sieve_type)
+            };
 
             let bar = ProgressBar::new(get_settings().show_bar);
 
@@ -91,7 +108,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 for prime in bar.iter(primes) {
                     buffer += &format!("{}\n", prime);
 
-                    if buffer.len() > get_settings().buffer_size {
+                    if buffer.len() > buffer_size {
                         write!(file, "{}", buffer)?;
                         buffer.clear();
                     }
