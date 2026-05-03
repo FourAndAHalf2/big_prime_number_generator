@@ -7,6 +7,7 @@ use std::{
 };
 
 use clap::{Parser, Subcommand};
+use regex::Regex;
 
 use crate::settings::{get_settings, load_and_get_settings, load_settings};
 mod binary_array;
@@ -22,6 +23,10 @@ enum Commands {
         /// file what is opened to read
         #[arg(short, long)]
         file: String,
+
+        /// filter data what fit in the pattern, uses regex
+        #[arg(long, default_value = "")]
+        pattern: String,
     },
     Write {
         /// Limit of sieve
@@ -93,9 +98,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 _ => panic!("{} is not supported, use other algorithm", sieve_type),
             };
 
-            let primes = sieve.get_primes();
+           
 
             if display {
+                let primes = sieve.get_primes();
                 for prime in primes {
                     println!("{}", prime);
                 }
@@ -104,12 +110,26 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             }
         }
 
-        Some(Commands::Read { file: path }) => {
+        Some(Commands::Read {
+            file: path,
+            pattern,
+        }) => {
             let file = File::open(path)?;
             let reader = BufReader::new(file);
 
+            let re = Regex::new(&pattern);
+
+            if re.is_err() {
+                panic!("{} is invalid pattern", pattern)
+            }
+
+            let re = re.unwrap();
+
             for line in reader.lines() {
-                println!("{}", line?);
+                let line = line?;
+                if re.is_match(&line) {
+                    println!("{}", line);
+                }
             }
         }
 
