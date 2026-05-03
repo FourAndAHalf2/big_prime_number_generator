@@ -1,3 +1,5 @@
+// without this line there suggestion to remove next line - without it VSCode show errors in test.rs, but the program compiles
+#![allow(unused)]
 #![feature(test)]
 use std::{
     fs::File,
@@ -6,10 +8,7 @@ use std::{
 
 use clap::{Parser, Subcommand};
 
-use crate::{
-    progress_bar::ProgressBar,
-    settings::{get_settings, load_and_get_settings, load_settings},
-};
+use crate::settings::{get_settings, load_and_get_settings, load_settings};
 mod binary_array;
 mod progress_bar;
 mod settings;
@@ -94,16 +93,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 _ => panic!("{} is not supported, use other algorithm", sieve_type),
             };
 
-             let primes = sieve.get_primes();
-             let bar = ProgressBar::new(get_settings().show_bar);
-            if display {
-               
+            let primes = sieve.get_primes();
 
+            if display {
                 for prime in primes {
                     println!("{}", prime);
                 }
             } else {
-                   sieve.as_mut().save(output)?;
+                sieve.as_mut().save(output)?;
             }
         }
 
