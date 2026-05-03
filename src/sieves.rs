@@ -1,5 +1,7 @@
-use crate::{binnary_array::BinaryArray, progress_bar::ProgressBar, settings::get_settings};
+use std::fs::File;
+use std::io::Write;
 
+use crate::{binnary_array::BinaryArray, progress_bar::ProgressBar, settings::get_settings};
 
 pub trait Sieve {
     fn get_limit(&self) -> usize;
@@ -8,9 +10,9 @@ pub trait Sieve {
 
     fn run(&mut self);
     fn get_primes(&mut self) -> Vec<usize>;
-    
-}
 
+    fn save(&mut self, output: String) -> Result<(), Box<dyn std::error::Error>>;
+}
 
 pub struct SieveOfEratosthenes {
     sieve: BinaryArray,
@@ -24,6 +26,32 @@ impl SieveOfEratosthenes {
             is_sieve_completed: false,
         };
     }
+}
+
+fn save_sieve(sieve: &BinaryArray, output: String) -> Result<(), Box<dyn std::error::Error>> {
+    let bar = ProgressBar::new(get_settings().show_bar);
+
+    let mut file = File::create(output)?;
+    let mut buffer = String::new();
+
+    for i in bar.iter(0..sieve.len()) {
+        let is_prime = sieve[i];
+
+        if !is_prime {
+            continue;
+        }
+        buffer += &format!("{}\n", i);
+
+        if buffer.len() > get_settings().buffer_size {
+            write!(file, "{}", buffer)?;
+            buffer.clear();
+        }
+    }
+
+    if !buffer.is_empty() {
+        write!(file, "{}", buffer)?;
+    }
+    Ok(())
 }
 
 impl Sieve for SieveOfEratosthenes {
@@ -40,7 +68,7 @@ impl Sieve for SieveOfEratosthenes {
     fn run(&mut self) {
         let bar = ProgressBar::new(get_settings().show_bar);
 
-        let limit = (self.get_limit() as f32 + 1.0).sqrt() as usize+1;
+        let limit = (self.get_limit() as f32 + 1.0).sqrt() as usize + 1;
 
         self.sieve[0] = false;
         self.sieve[1] = false;
@@ -71,6 +99,11 @@ impl Sieve for SieveOfEratosthenes {
 
         return primes;
     }
+
+    fn save(&mut self, output: String) -> Result<(), Box<dyn std::error::Error>> {
+        self.run();
+        save_sieve(&self.sieve, output)
+    }
 }
 
 pub struct SieveOfAtkin {
@@ -97,7 +130,7 @@ impl Sieve for SieveOfAtkin {
         self.is_sieve_completed = false;
     }
 
-     fn run(&mut self) {
+    fn run(&mut self) {
         let bar = ProgressBar::new(get_settings().show_bar);
 
         if self.get_limit() > 2 {
@@ -111,7 +144,7 @@ impl Sieve for SieveOfAtkin {
 
         let limit_sqrt = (self.get_limit() as f64).sqrt() as usize;
 
-        for x in  bar.iter(1..=limit_sqrt) {
+        for x in bar.iter(1..=limit_sqrt) {
             for y in 1..=limit_sqrt {
                 let x_square = x * x;
                 let y_square = y * y;
@@ -169,5 +202,10 @@ impl Sieve for SieveOfAtkin {
         }
 
         primes
+    }
+
+    fn save(&mut self, output: String) -> Result<(), Box<dyn std::error::Error>> {
+        self.run();
+        save_sieve(&self.sieve, output)
     }
 }

@@ -48,6 +48,14 @@ mod tests {
         assert_eq!(data[7], true);
     }
 
+    #[test]
+    fn test_binary_array_iter(){
+        let data = binnary_array::BinaryArray::new(100, true);
+        for i in 0..data.len(){
+            assert_eq!(data[i],true,"{}",i)
+        }
+    }
+
     #[bench]
     fn bench_binary_array_iter(b: &mut Bencher) {
         b.iter(|| {

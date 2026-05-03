@@ -1,7 +1,7 @@
 #![feature(test)]
 use std::{
     fs::File,
-    io::{BufRead, BufReader, Write},
+    io::{BufRead, BufReader},
 };
 
 use clap::{Parser, Subcommand};
@@ -51,7 +51,7 @@ enum Commands {
 
         /// Size of buffer used for writing numbers
         #[arg(short,long, default_value_t = load_and_get_settings().buffer_size.clone())]
-        buffer_size: usize
+        buffer_size: usize,
     },
 }
 
@@ -61,7 +61,6 @@ struct Args {
     #[command(subcommand)]
     command: Option<Commands>,
 }
-
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = Args::parse();
@@ -78,45 +77,33 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             sieve,
             buffer_size,
         }) => {
-            if hide{
+            if hide {
                 get_settings().show_bar = false;
             }
-            if show{
+            if show {
                 get_settings().show_bar = true;
             }
 
+            get_settings().buffer_size = buffer_size;
+
             let sieve_type = sieve;
-            
-            let mut sieve: Box<dyn Sieve> =  match sieve_type.to_lowercase().as_str() {
+
+            let mut sieve: Box<dyn Sieve> = match sieve_type.to_lowercase().as_str() {
                 "eratosthenes" => Box::new(sieves::SieveOfEratosthenes::new(limit)),
                 "atkin" => Box::new(sieves::SieveOfAtkin::new(limit)),
-                _ => panic!("{} is not supported, use other algorithm",sieve_type)
+                _ => panic!("{} is not supported, use other algorithm", sieve_type),
             };
 
-            let bar = ProgressBar::new(get_settings().show_bar);
-
-            let primes = sieve.get_primes();
-
+             let primes = sieve.get_primes();
+             let bar = ProgressBar::new(get_settings().show_bar);
             if display {
+               
+
                 for prime in primes {
                     println!("{}", prime);
                 }
             } else {
-                let mut file = File::create(output)?;
-                let mut buffer = String::new();
-
-                for prime in bar.iter(primes) {
-                    buffer += &format!("{}\n", prime);
-
-                    if buffer.len() > buffer_size {
-                        write!(file, "{}", buffer)?;
-                        buffer.clear();
-                    }
-                }
-
-                if !buffer.is_empty() {
-                    write!(file, "{}", buffer)?;
-                }
+                   sieve.as_mut().save(output)?;
             }
         }
 
