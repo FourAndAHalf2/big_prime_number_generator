@@ -1,7 +1,7 @@
 use std::fs::File;
 use std::io::Write;
 
-use crate::{binnary_array::BinaryArray, progress_bar::ProgressBar, settings::get_settings};
+use crate::{binary_array::BinaryArray, progress_bar::ProgressBar, settings::get_settings};
 
 pub trait Sieve {
     fn get_limit(&self) -> usize;

@@ -3,7 +3,7 @@ mod tests {
     extern crate test;
 
     use crate::{
-        binnary_array::{self, BinaryArray},
+        binary_array::{self, BinaryArray},
         settings::get_settings,
         sieves::{Sieve, SieveOfAtkin, SieveOfEratosthenes},
     };
@@ -36,21 +36,21 @@ mod tests {
 
     #[test]
     fn test_binary_array_read() {
-        let data = binnary_array::BinaryArray::new(8, false);
+        let data = binary_array::BinaryArray::new(8, false);
         assert_eq!(data[0], false);
         assert_eq!(data[7], false);
     }
 
     #[test]
     fn test_binary_array_write() {
-        let mut data = binnary_array::BinaryArray::new(10, false);
+        let mut data = binary_array::BinaryArray::new(10, false);
         data[7] = true;
         assert_eq!(data[7], true);
     }
 
     #[test]
     fn test_binary_array_iter(){
-        let data = binnary_array::BinaryArray::new(100, true);
+        let data = binary_array::BinaryArray::new(100, true);
         for i in 0..data.len(){
             assert_eq!(data[i],true,"{}",i)
         }

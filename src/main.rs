@@ -10,7 +10,7 @@ use crate::{
     progress_bar::ProgressBar,
     settings::{get_settings, load_and_get_settings, load_settings},
 };
-mod binnary_array;
+mod binary_array;
 mod progress_bar;
 mod settings;
 mod sieves;
