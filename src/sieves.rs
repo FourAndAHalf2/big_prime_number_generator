@@ -4,18 +4,21 @@ use std::io::Write;
 use crate::{binary_array::BinaryArray, progress_bar::ProgressBar, settings::get_settings};
 
 pub trait Sieve {
-    fn sieve(&self) -> &BinaryArray;
-    fn sieve_mut(&mut self) -> &mut BinaryArray;
+    fn get_sieve(&self) -> &BinaryArray;
+    fn get_sieve_mut(&mut self) -> &mut BinaryArray;
 
     fn get_limit(&self) -> usize {
-        self.sieve().len() - 1
+        self.get_sieve().len() - 1
     }
     #[allow(unused)]
     fn set_limit(&mut self, new_limit: usize);
 
     fn run(&mut self);
 
-    fn save(&mut self, output: String) -> Result<(), Box<dyn std::error::Error>>;
+   fn save(&mut self, output: String) -> Result<(), Box<dyn std::error::Error>> {
+        self.run();
+        save_sieve(&self.get_sieve(), output)
+    }
 
     fn get_primes(&mut self) -> Vec<usize> {
         self.run();
@@ -26,7 +29,7 @@ pub trait Sieve {
         let mut primes = Vec::new();
 
         for i in bar.iter(2..=self.get_limit()) {
-            if self.sieve()[i] {
+            if self.get_sieve()[i] {
                 primes.push(i);
             }
         }
@@ -76,11 +79,11 @@ fn save_sieve(sieve: &BinaryArray, output: String) -> Result<(), Box<dyn std::er
 }
 
 impl Sieve for SieveOfEratosthenes {
-    fn sieve(&self) -> &BinaryArray {
+    fn get_sieve(&self) -> &BinaryArray {
         &self.sieve
     }
 
-    fn sieve_mut(&mut self) -> &mut BinaryArray {
+    fn get_sieve_mut(&mut self) -> &mut BinaryArray {
         &mut self.sieve
     }
 
@@ -111,10 +114,6 @@ impl Sieve for SieveOfEratosthenes {
         self.is_sieve_completed = true;
     }
 
-    fn save(&mut self, output: String) -> Result<(), Box<dyn std::error::Error>> {
-        self.run();
-        save_sieve(&self.sieve, output)
-    }
 }
 
 pub struct SieveOfAtkin {
@@ -132,11 +131,11 @@ impl SieveOfAtkin {
 }
 
 impl Sieve for SieveOfAtkin {
-    fn sieve(&self) -> &BinaryArray {
+    fn get_sieve(&self) -> &BinaryArray {
         &self.sieve
     }
 
-    fn sieve_mut(&mut self) -> &mut BinaryArray {
+    fn get_sieve_mut(&mut self) -> &mut BinaryArray {
         &mut self.sieve
     }
 
@@ -200,8 +199,5 @@ impl Sieve for SieveOfAtkin {
         self.is_sieve_completed = true;
     }
 
-    fn save(&mut self, output: String) -> Result<(), Box<dyn std::error::Error>> {
-        self.run();
-        save_sieve(&self.sieve, output)
-    }
+    
 }

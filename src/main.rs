@@ -1,20 +1,20 @@
 // without this line there suggestion to remove next line - without it VSCode show errors in test.rs, but the program compiles
 #![allow(unused)]
 #![feature(test)]
-use std::{
-    fs::File,
-    io::{BufRead, BufReader},
-};
 
 use clap::{Parser, Subcommand};
-use regex::Regex;
 
-use crate::settings::{get_settings, load_and_get_settings, load_settings};
+use crate::{
+    settings::{get_settings, load_and_get_settings, load_settings},
+    sieve_io::{SieveIO, TextSieveIO},
+};
 mod binary_array;
 mod progress_bar;
 mod settings;
+mod sieve_io;
 mod sieves;
 mod tests;
+
 use crate::sieves::Sieve;
 
 #[derive(Subcommand, Debug)]
@@ -98,7 +98,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 _ => panic!("{} is not supported, use other algorithm", sieve_type),
             };
 
-           
+            sieve.as_mut().run();
 
             if display {
                 let primes = sieve.get_primes();
@@ -106,7 +106,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     println!("{}", prime);
                 }
             } else {
-                sieve.as_mut().save(output)?;
+                TextSieveIO {}.write(sieve.get_sieve(), output);
             }
         }
 
@@ -114,23 +114,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             file: path,
             pattern,
         }) => {
-            let file = File::open(path)?;
-            let reader = BufReader::new(file);
-
-            let re = Regex::new(&pattern);
-
-            if re.is_err() {
-                panic!("{} is invalid pattern", pattern)
-            }
-
-            let re = re.unwrap();
-
-            for line in reader.lines() {
-                let line = line?;
-                if re.is_match(&line) {
-                    println!("{}", line);
-                }
-            }
+            TextSieveIO {}.read(path, pattern)?;
         }
 
         None => {
