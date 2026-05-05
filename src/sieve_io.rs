@@ -9,7 +9,7 @@ use crate::{binary_array::BinaryArray, progress_bar::ProgressBar, settings::get_
 pub trait SieveIO {
     fn write(&self, sieve: &BinaryArray, path: String) -> Result<(), Box<dyn std::error::Error>>;
 
-    fn read(&self, path: String, pattern: String) -> Result<(), Box<dyn std::error::Error>>;
+    fn read(&self, path: String, pattern: String) ->  Result<Vec<usize>, Box<dyn std::error::Error>>;
 }
 
 pub struct TextSieveIO;
@@ -41,25 +41,19 @@ impl SieveIO for TextSieveIO {
         Ok(())
     }
 
-    fn read(&self, path: String,pattern: String) -> Result<(), Box<dyn std::error::Error>> {
+    fn read(&self, path: String,pattern: String) -> Result<Vec<usize>, Box<dyn std::error::Error>> {
         let file = File::open(path)?;
         let reader = BufReader::new(file);
 
-        let re = Regex::new(&pattern);
-
-        if re.is_err() {
-            panic!("{} is invalid pattern", pattern)
-        }
-
-        let re = re.unwrap();
-
+        
+        let mut primes = vec![];
         for line in reader.lines() {
             let line = line?;
-            if re.is_match(&line) {
-                println!("{}", line);
-            }
+            primes.push(line.parse().unwrap());
         };
 
-        Ok(())
+        Ok(primes)
     }
 }
+
+

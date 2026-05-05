@@ -3,6 +3,7 @@
 #![feature(test)]
 
 use clap::{Parser, Subcommand};
+use regex::Regex;
 
 use crate::{
     settings::{get_settings, load_and_get_settings, load_settings},
@@ -114,7 +115,19 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             file: path,
             pattern,
         }) => {
-            TextSieveIO {}.read(path, pattern)?;
+            let re = Regex::new(&pattern);
+
+            if re.is_err() {
+                panic!("{} is invalid pattern", pattern)
+            }
+
+            let re = re.unwrap();
+
+            for prime in (TextSieveIO {}.read(path, pattern)?) {
+                if re.is_match(&format!("{}", prime)) {
+                    println!("{}", prime)
+                }
+            }
         }
 
         None => {
