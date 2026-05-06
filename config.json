@@ -2,5 +2,6 @@
     "output": "out.txt",
     "buffer_size": 10485760,
     "show_bar": true,
-    "sieve_type": "eratosthenes"
+    "sieve_type": "eratosthenes",
+    "method":"auto"
 }

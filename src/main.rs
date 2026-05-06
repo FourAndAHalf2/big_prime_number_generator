@@ -2,12 +2,14 @@
 #![allow(unused)]
 #![feature(test)]
 
+use std::process;
+
 use clap::{Parser, Subcommand};
 use regex::Regex;
 
 use crate::{
     settings::{get_settings, load_and_get_settings, load_settings},
-    sieve_io::{SieveIO, TextSieveIO},
+    sieve_io::{BitSetSieveIO, SieveIO, TextSieveIO},
 };
 mod binary_array;
 mod progress_bar;
@@ -28,6 +30,10 @@ enum Commands {
         /// filter data what fit in the pattern, uses regex
         #[arg(long, default_value = "")]
         pattern: String,
+
+        /// method of saving primes, available methods text, bitset, auto
+        #[arg(short,long, default_value_t = load_and_get_settings().io_method.clone())]
+        method: String,
     },
     Write {
         /// Limit of sieve
@@ -50,13 +56,17 @@ enum Commands {
         #[arg(long)]
         show: bool,
 
-        /// Type of sieve used to compute primes, aviable types eratosthenes, atkin
+        /// Type of sieve used to compute primes, available types: eratosthenes, atkin
         #[arg(short,long, default_value_t = load_and_get_settings().sieve_type.clone())]
         sieve: String,
 
         /// Size of buffer used for writing numbers
         #[arg(short,long, default_value_t = load_and_get_settings().buffer_size.clone())]
         buffer_size: usize,
+
+        /// method of saving primes, available methods text, bitset
+        #[arg(short,long, default_value_t = load_and_get_settings().io_method.clone())]
+        method: String,
     },
 }
 
@@ -81,6 +91,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             show,
             sieve,
             buffer_size,
+            method,
         }) => {
             if hide {
                 get_settings().show_bar = false;
@@ -99,6 +110,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 _ => panic!("{} is not supported, use other algorithm", sieve_type),
             };
 
+            let sieve_io = get_sieve_io(method);
             sieve.as_mut().run();
 
             if display {
@@ -107,33 +119,73 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     println!("{}", prime);
                 }
             } else {
-                TextSieveIO {}.write(sieve.get_sieve(), output);
+                sieve_io.as_ref().write(sieve.get_sieve(), output)?;
             }
         }
 
         Some(Commands::Read {
             file: path,
             pattern,
+            method: method_name,
         }) => {
             let re = Regex::new(&pattern);
 
             if re.is_err() {
-                panic!("{} is invalid pattern", pattern)
+                eprintln!("{} is invalid pattern", pattern);
+                process::exit(1);
             }
+
+            get_settings().io_method = method_name.clone();
 
             let re = re.unwrap();
 
-            for prime in (TextSieveIO {}.read(path, pattern)?) {
-                if re.is_match(&format!("{}", prime)) {
-                    println!("{}", prime)
+    
+            let mut primes: Option<Vec<usize>> = None;
+            if method_name == "auto" {
+                let aviable_io: Vec<Box<dyn SieveIO>> =
+                    vec![Box::new(TextSieveIO), Box::new(BitSetSieveIO)];
+                for method in aviable_io {
+                    let status = method.as_ref().read(path.clone());
+                    if status.is_err() {
+                        continue;
+                    }
+                    primes = Some(status.unwrap())
                 }
+            } else {
+                let result= get_sieve_io(method_name).as_ref().read(path);
+                if result.is_err(){
+                    eprintln!("file cannot be open with \"{}\" method ",get_settings().io_method);
+                    process::exit(1);
+                }
+                primes = Some(result.unwrap())
+            }
+
+            if !primes.is_none() {
+                for prime in primes.unwrap() {
+                    if re.is_match(&format!("{}", prime)) {
+                        println!("{}", prime)
+                    }
+                }
+            }
+            else {
+                eprintln!("Invalid input file");
+                process::exit(1)
             }
         }
 
         None => {
-            println!("No command provided. Use --help.");
+            eprintln!("No command provided. Use --help.");
+            process::exit(1)
         }
     }
 
     Ok(())
+}
+
+fn get_sieve_io(method: String) -> Box<dyn SieveIO> {
+    match method.to_lowercase().as_str() {
+        "text" => Box::new(sieve_io::TextSieveIO),
+        "bitset" => Box::new(sieve_io::BitSetSieveIO),
+        _ => panic!("{}", method),
+    }
 }

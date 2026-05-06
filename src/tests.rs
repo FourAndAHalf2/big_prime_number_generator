@@ -16,10 +16,9 @@ mod tests {
         get_settings().show_bar = false;
         let mut sieve = create_sieve(limit);
         let primes = sieve.get_primes();
-        
+
         assert_eq!(primes, expected_primes);
     }
-
 
     #[test]
     fn test_all_sieves() {
@@ -49,10 +48,10 @@ mod tests {
     }
 
     #[test]
-    fn test_binary_array_iter(){
+    fn test_binary_array_iter() {
         let data = binary_array::BinaryArray::new(100, true);
-        for i in 0..data.len(){
-            assert_eq!(data[i],true,"{}",i)
+        for i in 0..data.len() {
+            assert_eq!(data[i], true, "{}", i)
         }
     }
 

@@ -9,7 +9,7 @@ pub struct BinaryArray {
     length: usize,
 
     /// used instead of returing actual bit
-    bool_refence: bool, 
+    bool_refence: bool,
     previous_index: usize,
     update_sieve: Cell<bool>,
 }
@@ -66,6 +66,11 @@ impl BinaryArray {
             }
         }
     }
+
+    pub fn get_chunk(&self, index: usize) -> u64{
+        self.commit_change();
+        unsafe {(&*self.data.as_ptr())[index] }
+    }
 }
 
 impl Index<usize> for BinaryArray {
@@ -85,7 +90,7 @@ impl Index<usize> for BinaryArray {
     }
 }
 
-/// sets value at given index 
+/// sets value at given index
 /// #WARNING  
 /// there migth be bugs while using asynchronous code
 impl IndexMut<usize> for BinaryArray {

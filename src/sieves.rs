@@ -1,10 +1,8 @@
-use std::fs::File;
-use std::io::Write;
-
 use crate::{binary_array::BinaryArray, progress_bar::ProgressBar, settings::get_settings};
 
 pub trait Sieve {
     fn get_sieve(&self) -> &BinaryArray;
+    #[allow(unused)]
     fn get_sieve_mut(&mut self) -> &mut BinaryArray;
 
     fn get_limit(&self) -> usize {
@@ -15,15 +13,9 @@ pub trait Sieve {
 
     fn run(&mut self);
 
-   fn save(&mut self, output: String) -> Result<(), Box<dyn std::error::Error>> {
-        self.run();
-        save_sieve(&self.get_sieve(), output)
-    }
-
     fn get_primes(&mut self) -> Vec<usize> {
         self.run();
 
-        
         let bar = ProgressBar::new(get_settings().show_bar);
 
         let mut primes = Vec::new();
@@ -50,32 +42,6 @@ impl SieveOfEratosthenes {
             is_sieve_completed: false,
         };
     }
-}
-
-fn save_sieve(sieve: &BinaryArray, output: String) -> Result<(), Box<dyn std::error::Error>> {
-    let bar = ProgressBar::new(get_settings().show_bar);
-
-    let mut file = File::create(output)?;
-    let mut buffer = String::new();
-
-    for i in bar.iter(0..sieve.len()) {
-        let is_prime = sieve[i];
-
-        if !is_prime {
-            continue;
-        }
-        buffer += &format!("{}\n", i);
-
-        if buffer.len() > get_settings().buffer_size {
-            write!(file, "{}", buffer)?;
-            buffer.clear();
-        }
-    }
-
-    if !buffer.is_empty() {
-        write!(file, "{}", buffer)?;
-    }
-    Ok(())
 }
 
 impl Sieve for SieveOfEratosthenes {
@@ -113,7 +79,6 @@ impl Sieve for SieveOfEratosthenes {
         }
         self.is_sieve_completed = true;
     }
-
 }
 
 pub struct SieveOfAtkin {
@@ -198,6 +163,4 @@ impl Sieve for SieveOfAtkin {
 
         self.is_sieve_completed = true;
     }
-
-    
 }
