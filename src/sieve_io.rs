@@ -73,10 +73,24 @@ impl SieveIO for BitSetSieveIO {
         file.write_all(&[padding as u8])?; // count of unused bits in the last chunk
 
         let chunk_count = (sieve.len() + 63) / 64;
+
+        let mut buffer = vec![];
+        let buffer_max_size = get_settings().buffer_size;
+
         for i in bar.iter(0..chunk_count) {
             let chunk = sieve.get_chunk(i);
-            file.write_all(&chunk.to_be_bytes())?;
+            buffer.extend_from_slice(&chunk.to_be_bytes());
+
+            if buffer.len() > buffer_max_size{
+                file.write(&buffer)?;
+                buffer.clear();
+            } 
         }
+
+         if buffer.len() > 0{
+                file.write(&buffer)?;
+                
+            } 
         Ok(())
     }
 
