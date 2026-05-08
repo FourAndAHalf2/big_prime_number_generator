@@ -81,16 +81,15 @@ impl SieveIO for BitSetSieveIO {
             let chunk = sieve.get_chunk(i);
             buffer.extend_from_slice(&chunk.to_be_bytes());
 
-            if buffer.len() > buffer_max_size{
+            if buffer.len() > buffer_max_size {
                 file.write(&buffer)?;
                 buffer.clear();
-            } 
+            }
         }
 
-         if buffer.len() > 0{
-                file.write(&buffer)?;
-                
-            } 
+        if buffer.len() > 0 {
+            file.write(&buffer)?;
+        }
         Ok(())
     }
 
@@ -126,7 +125,6 @@ impl SieveIO for BitSetSieveIO {
         let chunk_count = file_size / 8;
         let total_length = chunk_count * 64 - padding_size;
 
-        
         let mut chunk_buf = [0u8; 8];
         let mut primes = Vec::new();
         let bar = ProgressBar::new(get_settings().show_bar);

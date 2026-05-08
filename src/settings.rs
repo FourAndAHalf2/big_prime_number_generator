@@ -26,7 +26,7 @@ impl Settings {
     }
 }
 
-pub static SETTINGS: LazyLock<Mutex<Settings>> = LazyLock::new(|| Settings::new().into());
+static SETTINGS: LazyLock<Mutex<Settings>> = LazyLock::new(|| Settings::new().into());
 
 pub fn get_settings() -> std::sync::MutexGuard<'static, Settings> {
 

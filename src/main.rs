@@ -139,7 +139,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
             let re = re.unwrap();
 
-    
             let mut primes: Option<Vec<usize>> = None;
             if method_name == "auto" {
                 let aviable_io: Vec<Box<dyn SieveIO>> =
@@ -152,9 +151,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     primes = Some(status.unwrap())
                 }
             } else {
-                let result= get_sieve_io(method_name).as_ref().read(path);
-                if result.is_err(){
-                    eprintln!("file cannot be open with \"{}\" method ",get_settings().io_method);
+                let result = get_sieve_io(method_name).as_ref().read(path);
+                if result.is_err() {
+                    eprintln!(
+                        "file cannot be open with \"{}\" method ",
+                        get_settings().io_method
+                    );
                     process::exit(1);
                 }
                 primes = Some(result.unwrap())
@@ -166,8 +168,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                         println!("{}", prime)
                     }
                 }
-            }
-            else {
+            } else {
                 eprintln!("Invalid input file");
                 process::exit(1)
             }
