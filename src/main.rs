@@ -187,6 +187,6 @@ fn get_sieve_io(method: String) -> Box<dyn SieveIO> {
     match method.to_lowercase().as_str() {
         "text" => Box::new(sieve_io::TextSieveIO),
         "bitset" => Box::new(sieve_io::BitSetSieveIO),
-        _ => panic!("{}", method),
+        _ => panic!("{} is not supported", method),
     }
 }
