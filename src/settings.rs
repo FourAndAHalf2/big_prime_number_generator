@@ -12,6 +12,7 @@ pub struct Settings {
     pub buffer_size: usize, //number of bytes
     pub sieve_type: String,
     pub io_method: String,
+    pub use_sieve: bool,
 }
 
 impl Settings {
@@ -22,6 +23,7 @@ impl Settings {
             buffer_size: 1_000,
             sieve_type: "eratosthenes".to_string(),
             io_method: "text".to_string(),
+            use_sieve: true,
         };
     }
 }
@@ -70,6 +72,11 @@ pub fn load_settings() -> Result<(), Box<dyn std::error::Error>> {
         .unwrap_or(&Settings::new().sieve_type)
         .to_string();
     get_settings().io_method = json["method"]
+        .as_str()
+        .unwrap_or(&Settings::new().io_method)
+        .to_string();
+
+    get_settings().io_method = json["use_sieve"]
         .as_str()
         .unwrap_or(&Settings::new().io_method)
         .to_string();

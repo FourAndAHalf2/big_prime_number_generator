@@ -68,6 +68,20 @@ enum Commands {
         #[arg(short,long, default_value_t = load_and_get_settings().io_method.clone())]
         method: String,
     },
+
+    Check {
+        /// number to check is prime
+        #[arg(short, long)]
+        number: usize,
+
+        /// Type of sieve used to compute primes, available types: eratosthenes, atkin
+        #[arg(short,long, default_value_t = load_and_get_settings().sieve_type.clone())]
+        sieve: String,
+
+        /// decide if use sieve to check primality, if false, program will check if number is divisible by primes up to sqrt(number)
+        #[arg(long)]
+        use_sieve: bool,
+    },
 }
 
 #[derive(Parser, Debug)]
@@ -174,6 +188,31 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             }
         }
 
+        Some(Commands::Check {
+            number,
+            sieve: sieve_method,
+            use_sieve,
+        }) => {
+            let mut is_number_prime = true;
+            
+            if use_sieve {
+                let mut sieve: Box<dyn Sieve> = match sieve_method.to_lowercase().as_str() {
+                    "eratosthenes" => Box::new(sieves::SieveOfEratosthenes::new(number)),
+                    "atkin" => Box::new(sieves::SieveOfAtkin::new(number)),
+                    _ => panic!("{} is not supported, use other algorithm", sieve_method),
+                };
+                
+                is_number_prime = sieve.as_mut().get_primes().contains(&number);
+            } else {
+                is_number_prime = is_prime(number);
+            }
+
+            if is_number_prime{
+                println!("{} is prime", number);
+            } else {
+                println!("{} is not prime", number);
+            }
+        }
         None => {
             eprintln!("No command provided. Use --help.");
             process::exit(1)
@@ -189,4 +228,16 @@ fn get_sieve_io(method: String) -> Box<dyn SieveIO> {
         "bitset" => Box::new(sieve_io::BitSetSieveIO),
         _ => panic!("{} is not supported", method),
     }
+}
+
+fn is_prime(n: usize) -> bool {
+    if n <= 1 {
+        return false;
+    }
+    for i in 2..=((n as f64).sqrt() as usize) {
+        if n % i == 0 {
+            return false;
+        }
+    }
+    return true;
 }
