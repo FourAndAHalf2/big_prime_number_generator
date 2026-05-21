@@ -5,7 +5,7 @@
 use std::process;
 
 use clap::{Parser, Subcommand};
-use regex::Regex;
+use regex::{Regex, bytes};
 
 use crate::{
     settings::{get_settings, load_and_get_settings, load_settings},
@@ -79,7 +79,7 @@ enum Commands {
         sieve: String,
 
         /// decide if use sieve to check primality, if false, program will check if number is divisible by primes up to sqrt(number)
-        #[arg(long)]
+        #[arg(long,default_value_t = load_and_get_settings().use_sieve.clone())]
         use_sieve: bool,
     },
 }
@@ -118,11 +118,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
             let sieve_type = sieve;
 
-            let mut sieve: Box<dyn Sieve> = match sieve_type.to_lowercase().as_str() {
-                "eratosthenes" => Box::new(sieves::SieveOfEratosthenes::new(limit)),
-                "atkin" => Box::new(sieves::SieveOfAtkin::new(limit)),
-                _ => panic!("{} is not supported, use other algorithm", sieve_type),
-            };
+            let mut sieve= get_sieve(sieve_type);
+            sieve.as_mut().set_limit(limit);
 
             let sieve_io = get_sieve_io(method);
             sieve.as_mut().run();
@@ -196,13 +193,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             let mut is_number_prime = true;
             
             if use_sieve {
-                let mut sieve: Box<dyn Sieve> = match sieve_method.to_lowercase().as_str() {
-                    "eratosthenes" => Box::new(sieves::SieveOfEratosthenes::new(number)),
-                    "atkin" => Box::new(sieves::SieveOfAtkin::new(number)),
-                    _ => panic!("{} is not supported, use other algorithm", sieve_method),
-                };
-                
+                let mut sieve = get_sieve(sieve_method);
+                sieve.as_mut().set_limit(number);
+
                 is_number_prime = sieve.as_mut().get_primes().contains(&number);
+                
             } else {
                 is_number_prime = is_prime(number);
             }
@@ -240,4 +235,12 @@ fn is_prime(n: usize) -> bool {
         }
     }
     return true;
+}
+
+fn get_sieve(sieve: String) -> Box<dyn Sieve> {
+    match sieve.to_lowercase().as_str() {
+        "eratosthenes" => Box::new(sieves::SieveOfEratosthenes::new(0)),
+        "atkin" => Box::new(sieves::SieveOfAtkin::new(0)),
+        _ => panic!("{} is not supported", sieve),
+    }
 }

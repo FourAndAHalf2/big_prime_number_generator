@@ -47,9 +47,6 @@ pub fn load_settings() -> Result<(), Box<dyn std::error::Error>> {
 
     let json: serde_json::Value = serde_json::from_reader(config_file)?;
 
-    // return  Ok(());
-
-    
     //it is the easiest option to ensure that code won't crash
     get_settings().buffer_size = json["buffer_size"]
         .as_number()
