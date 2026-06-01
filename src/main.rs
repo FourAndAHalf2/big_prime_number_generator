@@ -81,6 +81,14 @@ enum Commands {
         /// decide if use sieve to check primality, if false, program will check if number is divisible by primes up to sqrt(number)
         #[arg(long,default_value_t = load_and_get_settings().use_sieve.clone())]
         use_sieve: bool,
+
+        /// Hide progress bar
+        #[arg(long)]
+        hide: bool,
+
+        /// Show progress bar
+        #[arg(long)]
+        show: bool,
     },
 }
 
@@ -189,9 +197,17 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             number,
             sieve: sieve_method,
             use_sieve,
+            hide,
+            show,
         }) => {
             let mut is_number_prime = true;
-            
+            if hide {
+                get_settings().show_bar = false;
+            }
+            if show {
+                get_settings().show_bar = true;
+            }
+
             if use_sieve {
                 let mut sieve = get_sieve(sieve_method);
                 sieve.as_mut().set_limit(number);
