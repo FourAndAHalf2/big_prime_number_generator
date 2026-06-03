@@ -5,7 +5,7 @@
 use std::process;
 
 use clap::{Parser, Subcommand};
-use regex::{Regex, bytes};
+use regex::{Regex};
 
 use crate::{
     settings::{get_settings, load_and_get_settings, load_settings},

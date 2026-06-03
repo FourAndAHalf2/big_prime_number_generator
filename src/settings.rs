@@ -4,7 +4,6 @@ use std::{
     sync::{LazyLock, Mutex},
 };
 
-use crate::settings;
 
 pub struct Settings {
     pub output: String,
