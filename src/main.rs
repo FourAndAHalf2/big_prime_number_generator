@@ -1,6 +1,8 @@
 // without this line there suggestion to remove next line - without it VSCode show errors in test.rs, but the program compiles
 #![allow(unused)]
 #![feature(test)]
+#![feature(unboxed_closures)]
+#![feature(fn_traits)]
 
 use std::process;
 

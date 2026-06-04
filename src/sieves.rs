@@ -20,7 +20,7 @@ pub trait Sieve {
 
         let mut primes = Vec::new();
 
-        for i in bar.iter(2..=self.get_limit()) {
+        for i in bar(2..=self.get_limit()) {
             if self.get_sieve()[i] {
                 primes.push(i);
             }
@@ -70,7 +70,7 @@ impl Sieve for SieveOfEratosthenes {
 
         self.sieve[0] = false;
         self.sieve[1] = false;
-        for i in bar.iter(1..=limit) {
+        for i in bar(1..=limit) {
             if self.sieve[i] {
                 for j in (i * i..=self.get_limit()).step_by(i) {
                     self.sieve[j] = false;
@@ -125,7 +125,7 @@ impl Sieve for SieveOfAtkin {
 
         let limit_sqrt = (self.get_limit() as f64).sqrt() as usize;
 
-        for x in bar.iter(1..=limit_sqrt) {
+        for x in bar(1..=limit_sqrt) {
             for y in 1..=limit_sqrt {
                 let x_square = x * x;
                 let y_square = y * y;
@@ -149,7 +149,7 @@ impl Sieve for SieveOfAtkin {
             }
         }
 
-        for i in bar.iter(5..=limit_sqrt) {
+        for i in bar(5..=limit_sqrt) {
             if i * i > self.get_limit() {
                 break;
             }
