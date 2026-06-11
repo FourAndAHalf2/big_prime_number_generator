@@ -1,6 +1,5 @@
 use tqdm::tqdm;
 
-
 pub struct ProgressBar {
     show: bool,
 }
@@ -60,4 +59,3 @@ where
         self.iter(args.0)
     }
 }
-

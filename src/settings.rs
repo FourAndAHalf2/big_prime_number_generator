@@ -4,7 +4,6 @@ use std::{
     sync::{LazyLock, Mutex},
 };
 
-
 pub struct Settings {
     pub output: String,
     pub show_bar: bool,
@@ -30,7 +29,6 @@ impl Settings {
 static SETTINGS: LazyLock<Mutex<Settings>> = LazyLock::new(|| Settings::new().into());
 
 pub fn get_settings() -> std::sync::MutexGuard<'static, Settings> {
-
     return SETTINGS.lock().unwrap();
 }
 
@@ -53,12 +51,10 @@ pub fn load_settings() -> Result<(), Box<dyn std::error::Error>> {
         .as_u64()
         .unwrap_or(Settings::new().buffer_size as u64) as usize; // there can be errors in 32 bits systems
 
-   
     get_settings().show_bar = json["show_bar"]
         .as_bool()
         .unwrap_or(Settings::new().show_bar);
 
-  
     get_settings().output = json["output"]
         .as_str()
         .unwrap_or(&Settings::new().output)

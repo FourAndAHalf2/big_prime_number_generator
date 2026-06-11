@@ -20,7 +20,7 @@ impl SieveIO for TextSieveIO {
         let mut file = File::create(path)?;
         let mut buffer = String::new();
 
-        for i in bar.iter(0..sieve.len()) {
+        for i in bar(0..sieve.len()) {
             let is_prime = sieve[i];
 
             if !is_prime {

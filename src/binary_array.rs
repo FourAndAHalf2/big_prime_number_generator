@@ -67,9 +67,9 @@ impl BinaryArray {
         }
     }
 
-    pub fn get_chunk(&self, index: usize) -> u64{
+    pub fn get_chunk(&self, index: usize) -> u64 {
         self.commit_change();
-        unsafe {(&*self.data.as_ptr())[index] }
+        unsafe { (&*self.data.as_ptr())[index] }
     }
 }
 

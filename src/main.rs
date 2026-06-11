@@ -7,7 +7,7 @@
 use std::process;
 
 use clap::{Parser, Subcommand};
-use regex::{Regex};
+use regex::Regex;
 
 use crate::{
     settings::{get_settings, load_and_get_settings, load_settings},
@@ -128,7 +128,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
             let sieve_type = sieve;
 
-            let mut sieve= get_sieve(sieve_type);
+            let mut sieve = get_sieve(sieve_type);
             sieve.as_mut().set_limit(limit);
 
             let sieve_io = get_sieve_io(method);
@@ -215,12 +215,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 sieve.as_mut().set_limit(number);
 
                 is_number_prime = sieve.as_mut().get_primes().contains(&number);
-                
             } else {
                 is_number_prime = is_prime(number);
             }
 
-            if is_number_prime{
+            if is_number_prime {
                 println!("{} is prime", number);
             } else {
                 println!("{} is not prime", number);
